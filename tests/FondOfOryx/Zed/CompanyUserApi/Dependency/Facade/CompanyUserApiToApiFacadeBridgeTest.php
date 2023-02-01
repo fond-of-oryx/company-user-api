@@ -1,19 +1,20 @@
 <?php
 
 
-namespace FondOfOryx\Zed\CompanyUserApi\Dependency\QueryContainer;
+namespace FondOfOryx\Zed\CompanyUserApi\Dependency\Facade;
 
 use Codeception\Test\Unit;
 use Generated\Shared\Transfer\ApiCollectionTransfer;
 use Generated\Shared\Transfer\ApiItemTransfer;
-use Spryker\Zed\Api\Persistence\ApiQueryContainer;
+use Spryker\Shared\Kernel\Transfer\AbstractTransfer;
+use Spryker\Zed\Api\Business\ApiFacadeInterface;
 
-class CompanyUserApiToApiQueryContainerBridgeTest extends Unit
+class CompanyUserApiToApiFacadeBridgeTest extends Unit
 {
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject|\Spryker\Zed\Api\Persistence\ApiQueryContainer
+     * @var \PHPUnit\Framework\MockObject\MockObject|\Spryker\Zed\Api\Business\ApiFacadeInterface
      */
-    protected $apiQueryContainerMock;
+    protected $facadeMock;
 
     /**
      * @var \PHPUnit\Framework\MockObject\MockObject|\Generated\Shared\Transfer\ApiCollectionTransfer
@@ -26,9 +27,9 @@ class CompanyUserApiToApiQueryContainerBridgeTest extends Unit
     protected $apiItemTransferMock;
 
     /**
-     * @var \FondOfOryx\Zed\CompanyUserApi\Dependency\QueryContainer\CompanyUserApiToApiQueryContainerBridge
+     * @var \FondOfOryx\Zed\CompanyUserApi\Dependency\Facade\CompanyUserApiToApiFacadeBridge
      */
-    protected $apiQueryContainerBridge;
+    protected $bridge;
 
     /**
      * @return void
@@ -37,7 +38,7 @@ class CompanyUserApiToApiQueryContainerBridgeTest extends Unit
     {
         parent::_before();
 
-        $this->apiQueryContainerMock = $this->getMockBuilder(ApiQueryContainer::class)
+        $this->facadeMock = $this->getMockBuilder(ApiFacadeInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -49,7 +50,7 @@ class CompanyUserApiToApiQueryContainerBridgeTest extends Unit
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->apiQueryContainerBridge = new CompanyUserApiToApiQueryContainerBridge($this->apiQueryContainerMock);
+        $this->bridge = new CompanyUserApiToApiFacadeBridge($this->facadeMock);
     }
 
     /**
@@ -59,14 +60,14 @@ class CompanyUserApiToApiQueryContainerBridgeTest extends Unit
     {
         $data = [];
 
-        $this->apiQueryContainerMock->expects(static::atLeastOnce())
+        $this->facadeMock->expects(static::atLeastOnce())
             ->method('createApiCollection')
             ->with($data)
             ->willReturn($this->apiCollectionTransferMock);
 
         static::assertEquals(
             $this->apiCollectionTransferMock,
-            $this->apiQueryContainerBridge->createApiCollection($data),
+            $this->bridge->createApiCollection($data),
         );
     }
 
@@ -75,16 +76,19 @@ class CompanyUserApiToApiQueryContainerBridgeTest extends Unit
      */
     public function testCreateApiItem(): void
     {
-        $data = [];
+        $id = '1';
+        $transferMock = $this->getMockBuilder(AbstractTransfer::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $this->apiQueryContainerMock->expects(static::atLeastOnce())
+        $this->facadeMock->expects(static::atLeastOnce())
             ->method('createApiItem')
-            ->with($data)
+            ->with($transferMock, $id)
             ->willReturn($this->apiItemTransferMock);
 
         static::assertEquals(
             $this->apiItemTransferMock,
-            $this->apiQueryContainerBridge->createApiItem($data),
+            $this->bridge->createApiItem($transferMock, $id),
         );
     }
 }
